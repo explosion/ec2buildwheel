@@ -34,6 +34,8 @@ If the build fails, then the script will pause until you hit enter to continue. 
 
 To facilitate this, we automatically check your local ssh-agent for any loaded keys, and put them into the authorized_keys on the EC2 machine. So as long as you have a running ssh-agent, then you should be able to do `ssh ubuntu@<remote machine ip>` to log in.
 
+If you don't have a running ssh-agent, you can also do `--add-ssh-pubkey ~/.ssh/id_ed25519.pub` to manually set an authorized key on the remote machine. 
+
 
 ## Limitations
 

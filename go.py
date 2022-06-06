@@ -175,6 +175,7 @@ def main():
         "--add-ssh-pubkey",
         metavar="PATH",
         action="append",
+        default=[],
         help="""An additional ssh public key you want to add to the builder's
         authorized_keys. (Only needed if you don't have an ssh-agent running.)
         Can be used multiple times.""",
@@ -191,7 +192,7 @@ def main():
     if args.package_name is None:
         args.package_name = args.repo.rsplit("/", 1)[-1].removesuffix(".git")
 
-    print("Validating instance type...")
+    print(f"Validating instance type {args.instance_type}...")
     ec2 = boto3.client("ec2", region_name=args.region)
     arch = arch_for_instance_type(ec2, args.instance_type)
 
@@ -213,7 +214,7 @@ def main():
     print("Spawning virtual machine...")
 
     authorized_keys = []
-    for key in [tmp_key] + paramiko.agent.Agent().get_keys():
+    for key in [tmp_key] + list(paramiko.agent.Agent().get_keys()):
         authorized_keys.append(f"{key.get_name()} {key.get_base64()}")
     for key_path in args.add_ssh_pubkey:
         authorized_keys.append(Path(key_path).read_text())
@@ -223,9 +224,7 @@ def main():
         "users": [
             {
                 "name": "ubuntu",
-                "ssh_authorized_keys": [
-                    f"{key.get_name()} {key.get_base64()}" for key in authorized_keys
-                ],
+                "ssh_authorized_keys": authorized_keys,
                 "sudo": "ALL=(ALL) NOPASSWD:ALL",
                 "groups": "docker",
             },
