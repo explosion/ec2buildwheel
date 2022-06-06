@@ -28,7 +28,7 @@ By default, uses an a1.xlarge instance to build aarch64 wheels. To change the in
 While this script tries hard to clean up after itself, it also has a failsafe: if the EC2 instance is somehow left running, then it will automatically self-destruct after 12 hours. So you don't need to worry about accidentally leaving an instance running for months without noticing. 
 
 
-# Debugging failed builds
+## Debugging failed builds
 
 If the build fails, then the script will pause until you hit enter to continue. This is to give you a chance to log into the EC2 machine and poke around to debug things, before it gets torn down.
 
