@@ -146,14 +146,39 @@ def create_our_sg(ec2):
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument("repo")
     parser.add_argument("commit")
-    parser.add_argument("--package-name", default=None)
-    parser.add_argument("--region", default="eu-central-1")
-    parser.add_argument("--instance-type", default="a1.xlarge")
-    parser.add_argument("--disk-size", default=20, type=int, help="in gigabytes")
-    parser.add_argument("--wheelhouse", default="wheelhouse", help="where to put built wheels")
+    parser.add_argument(
+        "--package-name",
+        default=None,
+        help="""The import name for the Python package (only required if it doesn't
+        match the repo name)""",
+    )
+    parser.add_argument("--region", default="eu-central-1", help="AWS region")
+    parser.add_argument(
+        "--instance-type", default="a1.xlarge", help="EC2 instance type"
+    )
+    parser.add_argument(
+        "--disk-size", metavar="N", default=20, type=int, help="in gigabytes"
+    )
+    parser.add_argument(
+        "-w",
+        "--wheelhouse",
+        metavar="PATH",
+        default="./wheelhouse",
+        help="where to put built wheels",
+    )
+    parser.add_argument(
+        "--add-ssh-pubkey",
+        metavar="PATH",
+        action="append",
+        help="""An additional ssh public key you want to add to the builder's
+        authorized_keys. (Only needed if you don't have an ssh-agent running.)
+        Can be used multiple times.""",
+    )
     parser.add_argument(
         "--ubuntu-version",
         default="22.04",
@@ -165,11 +190,6 @@ def main():
         args.repo = f"https://github.com/{args.repo}"
     if args.package_name is None:
         args.package_name = args.repo.rsplit("/", 1)[-1].removesuffix(".git")
-
-    print("Generating temporary SSH key...")
-    # Have to use RSA, because Paramiko doesn't yet support generating Ed25519 keys
-    # https://github.com/paramiko/paramiko/issues/1136
-    key = paramiko.RSAKey.generate(bits=4096)
 
     print("Validating instance type...")
     ec2 = boto3.client("ec2", region_name=args.region)
@@ -185,16 +205,18 @@ def main():
     sg_id = create_our_sg(ec2)
     print(f"  Created {sg_id}")
 
-    agent = paramiko.agent.Agent()
-    agent.get_keys()
+    print("Generating temporary SSH key...")
+    # Have to use RSA, because Paramiko doesn't yet support generating Ed25519 keys
+    # https://github.com/paramiko/paramiko/issues/1136
+    tmp_key = paramiko.RSAKey.generate(bits=4096)
 
     print("Spawning virtual machine...")
 
     authorized_keys = []
-    # Our temporary key we just generated
-    authorized_keys.append(key)
-    # Any keys in the user's ssh agent
-    authorized_keys += paramiko.agent.Agent().get_keys()
+    for key in [tmp_key] + paramiko.agent.Agent().get_keys():
+        authorized_keys.append(f"{key.get_name()} {key.get_base64()}")
+    for key_path in args.add_ssh_pubkey:
+        authorized_keys.append(Path(key_path).read_text())
 
     user_data = {
         "groups": ["docker"],
@@ -234,20 +256,11 @@ ExecStart=poweroff
             },
         ],
         "runcmd": [
-            "echo I AM ALIVE",
             "systemctl daemon-reload",
             "systemctl enable --now auto-terminate.timer",
         ],
     }
     user_data_str = "#cloud-config\n" + yaml.dump(user_data)
-
-#     user_data_str = """\
-# #cloud-config
-# users:
-#     - name: ubuntu
-#       ssh_authorized_keys:
-#         - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE06aeqdPUoF0DvugmpGFCh8U1dxe9MZo7Ae/JJlciEG njs@branna
-# """
 
     response = ec2.run_instances(
         ImageId=ami,
@@ -306,7 +319,13 @@ ExecStart=poweroff
         ssh.set_missing_host_key_policy(IgnoreHostKey())
         while True:
             try:
-                ssh.connect(public_ip, username="ubuntu", pkey=key, timeout=1, look_for_keys=False)
+                ssh.connect(
+                    public_ip,
+                    username="ubuntu",
+                    pkey=key,
+                    timeout=1,
+                    look_for_keys=False,
+                )
             except Exception:
                 time.sleep(1)
             else:
@@ -324,7 +343,7 @@ ExecStart=poweroff
             "package_name": args.package_name,
         }
         with sftp.open("build-info.json", mode="w") as f:
-            json.dump(build_info , f)
+            json.dump(build_info, f)
 
         print("Running build...")
         print("\n-------- remote build output starts here --------")
@@ -359,20 +378,23 @@ ExecStart=poweroff
             sys.exit(1)
 
         local_wheelhouse = Path(args.wheelhouse).absolute()
-        remote_wheelhouse = PurePosixPath("wheelhouse")
-        print(f"Fetching wheels into {local_wheelhouse}...")
+        remote_wheelhouse = PurePosixPath("./wheelhouse")
+        print(
+            f"Fetching wheels from remote:{remote_wheelhouse} into local:{local_wheelhouse}..."
+        )
         local_wheelhouse.mkdir(parents=True, exist_ok=True)
         for name in sftp.listdir(str(remote_wheelhouse)):
             print(f"  {name}")
             sftp.get(str(remote_wheelhouse / name), str(local_wheelhouse / name))
 
-        print("Success!")
+        print(f"Success! Your wheels are in {local_wheelhouse}")
 
     finally:
         print("Terminating instance...")
         ec2.terminate_instances(InstanceIds=[instance_id])
         print("Cleaning up security groups...")
         clean_up_unused_sgs(ec2, SG_TAG)
+
 
 if __name__ == "__main__":
     main()
