@@ -157,7 +157,7 @@ def main():
         help="""The import name for the Python package (only required if it doesn't
         match the repo name)""",
     )
-    parser.add_argument("--region", default="eu-central-1", help="AWS region")
+    parser.add_argument("--region", default="eu-west-1", help="AWS region")
     parser.add_argument(
         "--instance-type", default="a1.xlarge", help="EC2 instance type"
     )
