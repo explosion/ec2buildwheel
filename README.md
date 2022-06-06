@@ -39,7 +39,9 @@ If you don't have a running ssh-agent, you can also do `--add-ssh-pubkey ~/.ssh/
 
 ## Limitations
 
-- Currently the cibuildwheel configuration is hardcoded to match how Explosion has traditionally built wheels. (See the `CIBW_*` settings in `remote.sh`.) The tool would be more generally useful if we could get rid of these (e.g. by moving them into the individual projects' `pyproject.toml`, [cf](https://cibuildwheel.readthedocs.io/en/stable/options/#configuration-file)), and then just passed through any `CIBW_*` settings from the local environment, so this tool had the same features and interface as cibuildwheel proper.
+- Currently the cibuildwheel configuration is hardcoded to match how Explosion has traditionally built wheels. (See the `CIBW_*` settings in `remote.sh`.) The tool would be more generally useful if we could get rid of these (e.g. by [moving them into the individual projects' `pyproject.toml`](https://cibuildwheel.readthedocs.io/en/stable/options/#configuration-file)), and then just passed through any `CIBW_*` settings from the local environment, so this tool had the same features and interface as cibuildwheel proper.
+
+  One of those hard-coded configuration settings in particular is to unconditionally install the Rust toolchain, which isn't as elegant as wheelwright's conditional installation, but is simpler and only adds a few seconds to the build time. 
 
 - Currently if you pass a `owner/repo`-style github URL on the command line, we do `git clone https://github.com/owner/repo`. This works fine if the repo is public, but if it's private then it will fail, because there's no way to authenticate. And, if you explicitly pass in a ssh URL like `git@github.com:owner/repo`, then it will fail because the EC2 machine doesn't have any access to credentials.
 
