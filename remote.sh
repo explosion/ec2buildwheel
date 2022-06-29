@@ -34,11 +34,11 @@ python3 -m venv ~/myenv
 ~/myenv/bin/pip install cibuildwheel
 
 export CIBW_BEFORE_ALL="curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable && source ~/.cargo/env"
-export CIBW_BUILD_FRONTEND=build
-export CIBW_BEFORE_TEST="pip install -r requirements.txt"
 if [ -e build-constraints.txt ]; then
-    CIBW_BEFORE_TEST="$CIBW_BEFORE_TEST -c build-constraints.txt"
+    export CIBW_ENVIRONMENT='PIP_CONSTRAINT=build-constraints.txt'
 fi
+export CIBW_BUILD_FRONTEND=pip
+export CIBW_BEFORE_TEST="pip install -r requirements.txt"
 export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $PACKAGE_NAME"
 
 ~/myenv/bin/cibuildwheel --platform linux --output-dir ~/wheelhouse
