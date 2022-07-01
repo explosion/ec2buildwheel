@@ -25,6 +25,7 @@ sudo apt-get -y install jq git python3-pip python3-venv docker.io
 REPO_URL="$(jq -r .repo_url ~/build-info.json)"
 COMMIT="$(jq -r .commit ~/build-info.json)"
 PACKAGE_NAME="$(jq -r .package_name ~/build-info.json)"
+MODULE_NAME="${PACKAGE_NAME//-/_}"
 
 git clone $REPO_URL checkout
 cd checkout
@@ -38,8 +39,9 @@ if [ -e build-constraints.txt ]; then
     export CIBW_ENVIRONMENT='PIP_CONSTRAINT=build-constraints.txt'
 fi
 export CIBW_BUILD_FRONTEND=pip
+export CIBW_SKIP="pp* *-musllinux*"
 export CIBW_BEFORE_TEST="pip install -r requirements.txt"
-export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $PACKAGE_NAME"
+export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $MODULE_NAME"
 
 ~/myenv/bin/cibuildwheel --platform linux --output-dir ~/wheelhouse
 
