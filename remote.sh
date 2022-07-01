@@ -34,9 +34,10 @@ git checkout $COMMIT
 python3 -m venv ~/myenv
 ~/myenv/bin/pip install cibuildwheel
 
-export CIBW_BEFORE_ALL="curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable && source ~/.cargo/env"
+export CIBW_BEFORE_ALL="curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable"
+export CIBW_ENVIRONMENT='PATH="$PATH:$HOME/.cargo/bin"'
 if [ -e build-constraints.txt ]; then
-    export CIBW_ENVIRONMENT='PIP_CONSTRAINT=build-constraints.txt'
+    export CIBW_ENVIRONMENT="$CIBW_ENVIRONMENT PIP_CONSTRAINT=build-constraints.txt"
 fi
 export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux*"
