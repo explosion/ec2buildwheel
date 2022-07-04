@@ -164,7 +164,7 @@ def main():
     )
     parser.add_argument("--region", default="eu-west-1", help="AWS region")
     parser.add_argument(
-        "--instance-type", default="m6g.large", help="EC2 instance type"
+        "--instance-type", default="m6g.2xlarge", help="EC2 instance type"
     )
     parser.add_argument(
         "--disk-size", metavar="N", default=20, type=int, help="in gigabytes"
