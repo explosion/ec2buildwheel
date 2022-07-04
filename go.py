@@ -6,6 +6,7 @@ import time
 import sys
 from pathlib import Path, PurePosixPath
 import json
+import signal
 
 import boto3
 from botocore.exceptions import ClientError
@@ -143,6 +144,10 @@ def create_our_sg(ec2):
         ],
     )
     return sg_id
+
+
+def raise_keyboard_interrupt(*_):
+    raise KeyboardInterrupt
 
 
 def main():
@@ -283,6 +288,7 @@ ExecStart=poweroff
     instance_id = glom(response, "Instances.0.InstanceId")
     print(f"  Instance is {instance_id}")
 
+    signal.signal(signal.SIGTERM, raise_keyboard_interrupt)
     try:
         print("Waiting for VM to be assigned a public IP...")
         while True:
