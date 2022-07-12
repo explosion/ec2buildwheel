@@ -43,6 +43,11 @@ export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux*"
 export CIBW_BEFORE_TEST="pip install -r requirements.txt"
 export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $MODULE_NAME"
+# By default cibuildwheel doesn't strip debug info from libraries:
+#    https://github.com/pypa/cibuildwheel/issues/331
+# But you pretty much always want this for production end-user releases, so we override
+# this to add the --strip flag.
+export CIBW_REPAIR_WHEEL_COMMAND_LINUX="auditwheel repair --strip -w {dest_dir} {wheel}"
 
 ~/myenv/bin/cibuildwheel --platform linux --output-dir ~/wheelhouse
 
