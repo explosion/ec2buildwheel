@@ -162,6 +162,12 @@ def main():
         help="""The import name for the Python package (only required if it doesn't
         match the repo name)""",
     )
+    parser.add_argument(
+        "--non-interactive",
+        default=False,
+        action="store_true",
+        help="If the build errors, don't pause for interactive debugging",
+    )
     parser.add_argument("--region", default="eu-west-1", help="AWS region")
     parser.add_argument(
         "--instance-type", default="m6g.2xlarge", help="EC2 instance type"
@@ -374,13 +380,14 @@ ExecStart=poweroff
         status = channel.recv_exit_status()
         if status:
             print(f"Build failed! (exit status: {status})")
-            if len(authorized_keys) > 1:
-                print(f"To investigate further: ssh ubuntu@{public_ip}")
-            else:
-                print("Configure an ssh-agent to get access to failed builds")
-            input("Press enter when ready to tear everything down...")
-            print("Goodbye.")
-            sys.exit(1)
+            if not args.non_interactive:
+                if len(authorized_keys) > 1:
+                    print(f"To investigate further: ssh ubuntu@{public_ip}")
+                else:
+                    print("Configure an ssh-agent to get access to failed builds")
+                input("Press enter when ready to tear everything down...")
+                print("Goodbye.")
+                sys.exit(1)
 
         local_wheelhouse = Path(args.wheelhouse).absolute()
         remote_wheelhouse = PurePosixPath("./wheelhouse")
