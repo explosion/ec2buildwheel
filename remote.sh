@@ -19,8 +19,9 @@ env
 # continue
 cloud-init status --wait
 
-sudo apt-get -y update
-sudo apt-get -y install jq git python3-pip python3-venv docker.io
+export DEBIAN_FRONTEND=noninteractive
+sudo -E apt-get -y update
+sudo -E apt-get -y install jq git python3-pip python3-venv docker.io
 
 REPO_URL="$(jq -r .repo_url ~/build-info.json)"
 COMMIT="$(jq -r .commit ~/build-info.json)"

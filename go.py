@@ -364,16 +364,20 @@ ExecStart=poweroff
         # TODO FIXME: pass through CIBW_* env vars?
         # channel.update_environment(...)
 
+        channel.get_pty()  # try to reduce output buffering
         channel.exec_command("bash ~/remote.sh")
 
         # No stdin
         channel.shutdown_write()
+
         # Copy stdout to the terminal
+        sys.stdout.flush()
         while True:
             data = channel.recv(4096)
             if not data:
                 break
             sys.stdout.buffer.write(data)
+            sys.stdout.buffer.flush()
 
         print("-------- remote build output ends here --------\n")
 
