@@ -37,6 +37,7 @@ python3 -m venv ~/myenv
 
 export CIBW_BEFORE_ALL="curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable"
 export CIBW_ENVIRONMENT='PATH="$PATH:$HOME/.cargo/bin" SPACY_NUM_BUILD_JOBS=8'
+export CIBW_BUILD_VERBOSITY=1
 if [ -e build-constraints.txt ]; then
     export CIBW_ENVIRONMENT="$CIBW_ENVIRONMENT PIP_CONSTRAINT=build-constraints.txt"
 fi
