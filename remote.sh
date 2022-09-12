@@ -52,5 +52,3 @@ export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $MODULE_NAME"
 export CIBW_REPAIR_WHEEL_COMMAND_LINUX="auditwheel repair --strip -w {dest_dir} {wheel}"
 
 ~/myenv/bin/cibuildwheel --platform linux --output-dir ~/wheelhouse
-
-ls -l ~/wheelhouse
