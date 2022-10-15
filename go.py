@@ -391,7 +391,7 @@ ExecStart=poweroff
                     print("Configure an ssh-agent to get access to failed builds")
                 input("Press enter when ready to tear everything down...")
                 print("Goodbye.")
-                sys.exit(1)
+            sys.exit(1)
 
         local_wheelhouse = Path(args.wheelhouse).absolute()
         remote_wheelhouse = PurePosixPath("./wheelhouse")
