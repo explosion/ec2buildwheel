@@ -31,6 +31,7 @@ MODULE_NAME="${PACKAGE_NAME//-/_}"
 git clone $REPO_URL checkout
 cd checkout
 git checkout $COMMIT
+git submodule update --init
 
 python3 -m venv ~/myenv
 ~/myenv/bin/pip install cibuildwheel
