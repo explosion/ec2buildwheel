@@ -45,7 +45,9 @@ fi
 export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux*"
 export CIBW_BEFORE_TEST="pip install -r requirements.txt"
-export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $MODULE_NAME"
+# torch is not always compiled against the oldest support numpy, so upgrade
+# before testing
+export CIBW_TEST_COMMAND="unset PIP_CONSTRAINT && python -m pip install -U numpy && pytest --tb=native --pyargs $MODULE_NAME"
 # By default cibuildwheel doesn't strip debug info from libraries:
 #    https://github.com/pypa/cibuildwheel/issues/331
 # But you pretty much always want this for production end-user releases, so we override
