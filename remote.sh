@@ -43,7 +43,7 @@ if [ -e build-constraints.txt ]; then
     export CIBW_ENVIRONMENT="$CIBW_ENVIRONMENT PIP_CONSTRAINT=build-constraints.txt"
 fi
 export CIBW_BUILD_FRONTEND=pip
-export CIBW_SKIP="pp* *-musllinux*"
+export CIBW_SKIP="pp* *-musllinux* cp311-*"
 export CIBW_BEFORE_TEST="pip install -r requirements.txt"
 # torch is not always compiled against the oldest support numpy, so upgrade
 # before testing
