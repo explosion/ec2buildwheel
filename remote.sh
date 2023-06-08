@@ -43,7 +43,7 @@ if [ -e build-constraints.txt ]; then
     export CIBW_ENVIRONMENT="$CIBW_ENVIRONMENT PIP_CONSTRAINT=build-constraints.txt"
 fi
 export CIBW_BUILD_FRONTEND=pip
-export CIBW_SKIP="pp* *-musllinux* *-manylinux_i686*"
+export CIBW_SKIP="pp* *-musllinux* *i686*"
 export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT; pip install -U -r requirements.txt"
 export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $MODULE_NAME"
 # By default cibuildwheel doesn't strip debug info from libraries:
