@@ -44,7 +44,7 @@ if [ -e build-constraints.txt ]; then
 fi
 export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux* *i686*"
-export CIBW_BEFORE_TEST="pip install -r requirements.txt"
+export CIBW_BEFORE_TEST="pip install -r requirements.txt && pip cache purge"
 # torch is not always compiled against the oldest support numpy, so upgrade
 # before testing
 export CIBW_TEST_COMMAND="unset PIP_CONSTRAINT && python -m pip install -U numpy transformers && pytest --tb=native --pyargs $MODULE_NAME"
