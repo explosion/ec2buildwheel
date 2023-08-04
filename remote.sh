@@ -44,7 +44,9 @@ if [ -e build-constraints.txt ]; then
 fi
 export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux* *i686*"
-export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT; pip install -U -r requirements.txt"
+# as an alternative to downgrading pydantic for testing in the future:
+#export CIBW_MANYLINUX_AARCH64_IMAGE="manylinux_2_28"
+export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT; pip install -U -r requirements.txt; pip install 'pydantic~=1.0; platform_machine==\"aarch64\"'"
 export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $MODULE_NAME"
 # By default cibuildwheel doesn't strip debug info from libraries:
 #    https://github.com/pypa/cibuildwheel/issues/331
