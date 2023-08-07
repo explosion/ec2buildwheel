@@ -44,10 +44,12 @@ if [ -e build-constraints.txt ]; then
 fi
 export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux* *i686*"
-export CIBW_BEFORE_TEST="pip install -r requirements.txt && pip cache purge"
+# as an alternative to downgrading pydantic for testing in the future:
+#export CIBW_MANYLINUX_AARCH64_IMAGE="manylinux_2_28"
 # torch is not always compiled against the oldest support numpy, so upgrade
 # before testing
-export CIBW_TEST_COMMAND="unset PIP_CONSTRAINT && python -m pip install -U numpy transformers && pytest --tb=native --pyargs $MODULE_NAME"
+export CIBW_BEFORE_TEST="pip install -r requirements.txt && pip cache purge && unset PIP_CONSTRAINT && python -m pip install -U numpy transformers && pip install 'pydantic~=1.0; platform_machine==\"aarch64\"'"
+export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $MODULE_NAME"
 # By default cibuildwheel doesn't strip debug info from libraries:
 #    https://github.com/pypa/cibuildwheel/issues/331
 # But you pretty much always want this for production end-user releases, so we override
