@@ -43,7 +43,7 @@ if [ -e build-constraints.txt ]; then
     export CIBW_ENVIRONMENT="$CIBW_ENVIRONMENT PIP_CONSTRAINT=build-constraints.txt"
 fi
 export CIBW_BUILD_FRONTEND=pip
-export CIBW_SKIP="pp* *-musllinux* *i686*"
+export CIBW_SKIP="pp* *-musllinux* *i686* cp312-*"
 # as an alternative to downgrading pydantic for testing in the future:
 #export CIBW_MANYLINUX_AARCH64_IMAGE="manylinux_2_28"
 # torch is not always compiled against the oldest support numpy, so upgrade
