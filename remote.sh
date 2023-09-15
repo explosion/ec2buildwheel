@@ -43,7 +43,7 @@ if [ -e build-constraints.txt ]; then
     export CIBW_ENVIRONMENT="$CIBW_ENVIRONMENT PIP_CONSTRAINT=build-constraints.txt"
 fi
 export CIBW_BUILD_FRONTEND=pip
-export CIBW_SKIP="pp* *-musllinux* *i686* cp312-*"
+export CIBW_SKIP="pp* *-musllinux* *i686*"
 # as an alternative to downgrading pydantic for testing in the future:
 #export CIBW_MANYLINUX_AARCH64_IMAGE="manylinux_2_28"
 export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT && pip install -U -r requirements.txt && pip install 'pydantic~=1.0; platform_machine==\"aarch64\"'"
