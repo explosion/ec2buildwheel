@@ -46,7 +46,7 @@ export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux* *i686* cp312-*"
 # torch is not always compiled against the oldest support numpy, so upgrade
 # before testing
-export CIBW_BEFORE_TEST="pip install -r requirements.txt && pip cache purge && unset PIP_CONSTRAINT && pip install -U numpy tokenizers transformers -c requirements.txt"
+export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT && pip install -U -r requirements.txt && pip cache purge"
 export CIBW_TEST_COMMAND="pytest --tb=native --pyargs $MODULE_NAME"
 # By default cibuildwheel doesn't strip debug info from libraries:
 #    https://github.com/pypa/cibuildwheel/issues/331
