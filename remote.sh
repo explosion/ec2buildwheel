@@ -42,8 +42,13 @@ export CIBW_BUILD_VERBOSITY=1
 if [ -e build-constraints.txt ]; then
     export CIBW_ENVIRONMENT="$CIBW_ENVIRONMENT PIP_CONSTRAINT=build-constraints.txt"
 fi
+# build constraints through PIP_CONSTRAINT only work with pip frontend,
+# with the drawback that the pip builds aren't isolated
 export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux* *i686* cp312-*"
+# clean cython-generated files between builds to handle profiling
+# settings, since the builds aren't isolated
+export CIBW_BEFORE_BUILD="pip install -r requirements.txt && python setup.py clean"
 # torch is not always compiled against the oldest support numpy, so upgrade
 # before testing
 export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT && pip install -U -r requirements.txt && pip cache purge"
