@@ -47,8 +47,11 @@ fi
 export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux* *i686*"
 # clean cython-generated files between builds to handle profiling
-# settings, since the builds aren't isolated
-export CIBW_BEFORE_BUILD="pip install -r requirements.txt && python setup.py clean"
+# settings, since the builds aren't isolated; a cleaner/nicer version would
+# install the build requirements from pyproject.toml instead, but it's a hassle
+# to parse, so for now just numpy and cython since this should cover our
+# packages
+export CIBW_BEFORE_BUILD="pip install numpy cython && python setup.py clean"
 export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT && pip install -U -r requirements.txt"
 export CIBW_TEST_COMMAND="unset PIP_CONSTRAINT && pip install 'urllib3<2' && pytest --tb=native --pyargs $MODULE_NAME"
 # By default cibuildwheel doesn't strip debug info from libraries:
