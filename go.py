@@ -201,7 +201,9 @@ def main():
     if ":" not in args.repo:
         args.repo = f"https://github.com/{args.repo}"
     if args.package_name is None:
-        args.package_name = args.repo.rsplit("/", 1)[-1].removesuffix(".git")
+        args.package_name = args.repo.rsplit("/", 1)[-1]
+        if args.package_name.endswith(".git"):
+            args.package_name = args.package_name[:-4]
 
     print(f"Validating instance type {args.instance_type}...")
     ec2 = boto3.client("ec2", region_name=args.region)
