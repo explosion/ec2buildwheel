@@ -48,7 +48,7 @@ export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux* *i686* cp312-*"
 # clean cython-generated files between builds to handle profiling
 # settings, since the builds aren't isolated
-export CIBW_BEFORE_BUILD="pip install numpy cython && python setup.py clean"
+export CIBW_BEFORE_BUILD="pip install numpy 'cython<3' && python setup.py clean"
 # torch is not always compiled against the oldest support numpy, so upgrade
 # before testing
 export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT && pip install -U -r requirements.txt && pip cache purge"
