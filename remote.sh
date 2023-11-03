@@ -46,12 +46,13 @@ fi
 # with the drawback that the pip builds aren't isolated
 export CIBW_BUILD_FRONTEND=pip
 export CIBW_SKIP="pp* *-musllinux* *i686*"
-# clean cython-generated files between builds to handle profiling
+# for spacy: clean cython-generated files between builds to handle profiling
 # settings, since the builds aren't isolated; a cleaner/nicer version would
 # install the build requirements from pyproject.toml instead, but it's a hassle
-# to parse, so for now just numpy and cython since this should cover our
-# packages
-export CIBW_BEFORE_BUILD="pip install numpy 'cython<3' && python setup.py clean"
+# to parse
+if [ "$MODULE_NAME" = "spacy" ]; then
+    export CIBW_BEFORE_BUILD="pip install -r requirements.txt && python setup.py clean"
+fi
 export CIBW_BEFORE_TEST="unset PIP_CONSTRAINT && pip install -U -r requirements.txt"
 export CIBW_TEST_COMMAND="unset PIP_CONSTRAINT && pip install 'urllib3<2' && pytest --tb=native --pyargs $MODULE_NAME"
 # By default cibuildwheel doesn't strip debug info from libraries:
