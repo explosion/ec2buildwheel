@@ -45,7 +45,7 @@ fi
 # build constraints through PIP_CONSTRAINT only work with pip frontend,
 # with the drawback that the pip builds aren't isolated
 export CIBW_BUILD_FRONTEND=pip
-export CIBW_SKIP="pp* *-musllinux* *i686*"
+export CIBW_SKIP="pp* *-musllinux* *i686* cp36-* cp37-* cp38-*"
 # for spacy: clean cython-generated files between builds to handle profiling
 # settings, since the builds aren't isolated; a cleaner/nicer version would
 # install the build requirements from pyproject.toml instead, but it's a hassle
